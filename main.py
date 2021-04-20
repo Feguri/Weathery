@@ -22,7 +22,7 @@ Tomorrow6 = WeekDays[TodayWeekday + 7]
 Tomorrow7 = WeekDays[TodayWeekday + 8]
 
 
-Sunny = '#5aa3ad'
+Sunny = '#80BFFF'
 SunnyNight = '#090d2b'
 Overcast = '#637d96'
 Clouds = '#7290b5'
@@ -34,7 +34,7 @@ window.title('Weathery 🌲')
 City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
 
 # OR
-# City = 'Lisbon'
+# City = 'christchurch'
 
 data = WeatherData(city=f'{City}')
 astronomy_data = AstronomyData(city=f'{City}')
