@@ -31,11 +31,13 @@ window = Tk()
 window.geometry('1200x700')
 window.title('Weathery 🌲')
 
-# City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
+City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
 
+# OR
 # City = 'Lisbon'
-data = WeatherData(city=f'charlottetown')
-astronomy_data = AstronomyData(city=f'montreal')
+
+data = WeatherData(city=f'{City}')
+astronomy_data = AstronomyData(city=f'{City}')
 forecast_data = ForecastData(lat=data.Lat, lon=data.Lon)
 
 # ---------------------------------------- WEATHER LISTS ------------------------------------ #
