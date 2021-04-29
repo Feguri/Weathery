@@ -12,7 +12,6 @@ TodayWeekday = today.weekday()
 
 WeekDays = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-print(TodayWeekday)
 Tomorrow1 = 'Tomorrow'
 Tomorrow2 = WeekDays[TodayWeekday + 3]
 Tomorrow3 = WeekDays[TodayWeekday + 4]
@@ -21,11 +20,7 @@ Tomorrow5 = WeekDays[TodayWeekday + 6]
 Tomorrow6 = WeekDays[TodayWeekday + 7]
 Tomorrow7 = WeekDays[TodayWeekday + 8]
 
-
-Sunny = '#80BFFF'
 SunnyNight = '#090d2b'
-Overcast = '#637d96'
-Clouds = '#7290b5'
 
 window = Tk()
 window.geometry('1200x700')
@@ -33,242 +28,53 @@ window.title('Weathery 🌲')
 
 City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
 
-# OR
-# City = 'christchurch'
+with open(file='City.csv', mode='a') as city_file:
+    city_file.write(f'{City}')
+
 
 data = WeatherData(city=f'{City}')
 astronomy_data = AstronomyData(city=f'{City}')
 forecast_data = ForecastData(lat=data.Lat, lon=data.Lon)
 
-# ---------------------------------------- WEATHER LISTS ------------------------------------ #
-SunnyList = ['Sunny', 'Clear']
-CloudsList = ['Partly cloudy', 'Clouds']
-OvercastList = ['Cloudy', 'Overcast', 'Mist', 'Freezing fog', 'Fog']
-LightRainList = ['Light rain shower', 'Patchy rain possible', 'Patchy sleet possible',
-                 'Patchy freezing drizzle possible',
-                 'Patchy light drizzle', 'Light drizzle', 'Freezing drizzle', 'Heavy freezing drizzle',
-                 'Patchy light rain', 'Light rain', 'Light freezing rain', 'Light sleet', 'Light rain shower'
-                 'Light sleet showers']
-RainList = ['Rain', 'Moderate rain at times', 'Moderate rain', 'Heavy rain at times', 'Heavy rain',
-            'Moderate or heavy freezing rain', 'Moderate or heavy sleet', 'Torrential rain shower',
-            'Moderate or heavy sleet showers']
-SnowList = ['Snow', 'Patchy light snow', 'Light snow', 'Patchy moderate snow', 'Moderate snow', 'Patchy heavy snow',
-            'Heavy snow', 'Ice pellets', 'Light snow showers', 'Moderate or heavy snow showers',
-            'Light showers of ice pellets', 'Moderate or heavy showers of ice pellets']
-ThunderList = ['Thunder', 'Thunder Storm', 'Thunderstorm', 'Storm', 'Patchy light rain with thunder',
-               'Moderate or heavy rain with thunder',
-               'Patchy light snow with thunder', 'Moderate or heavy snow with thunder',
-               'Thundery outbreaks possible']
-
-#  ---------------------------------------- SORTING ALGORITHM ----------------------------------------- #
-if data.Condition in SunnyList:
-    Icon = PhotoImage(file=r'new_icons\sun.png')
-    Background = Sunny
-elif data.Condition in CloudsList:
-    Icon = PhotoImage(file=r'new_icons\utput-onlinepngtools (1).png')
-    Background = Clouds
-elif data.Condition in OvercastList:
-    Icon = PhotoImage(file=r'new_icons\utput-onlinepngtools (2).png')
-    Background = Overcast
-elif data.Condition in LightRainList:
-    Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (10).png')
-    Background = Clouds
-elif data.Condition in RainList:
-    Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (7).png')
-    Background = Overcast
-elif data.Condition in SnowList:
-    Icon = PhotoImage(file=r'new_icons\utput-onlinepngtools (7).png')
-    Background = Clouds
-elif data.Condition in ThunderList:
-    Icon = PhotoImage(file=r'output-onlinepngtools (1).png')
-    Background = Overcast
-else:
-    Icon = PhotoImage(file=r'new_icons\sun.png')
-    Background = Sunny
+from UiHelp import Ui
+Ui = Ui()
+Icon = PhotoImage(file=rf'new_icons\output-onlinepngtools ({Ui.main_icon_number()}).png')
+Background = Ui.background
 
 #  ---------------------------------------- Day 1 ----------------------------------------- #
-if forecast_data.ConditionOne in SunnyList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 
-elif forecast_data.ConditionOne in CloudsList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionOne in OvercastList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionOne in LightRainList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionOne in RainList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionOne in SnowList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionOne in ThunderList:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionOneIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionOneIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_one_icon()}).png')
 
 #  ---------------------------------------- Day 2 ----------------------------------------- #
-if forecast_data.ConditionTwo in SunnyList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 
-elif forecast_data.ConditionTwo in CloudsList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionTwo in OvercastList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionTwo in LightRainList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionTwo in RainList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionTwo in SnowList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionTwo in ThunderList:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionTwoIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionTwoIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_two_icon()}).png')
 
 #  ---------------------------------------- Day 3 ----------------------------------------- #
 
-if forecast_data.ConditionThree in SunnyList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionThreeIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_three_icon()}).png')
 
-elif forecast_data.ConditionThree in CloudsList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionThree in OvercastList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionThree in LightRainList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionThree in RainList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionThree in SnowList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionThree in ThunderList:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionThreeIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 #  ---------------------------------------- Day 4 ----------------------------------------- #
-if forecast_data.ConditionFour in SunnyList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 
-elif forecast_data.ConditionFour in CloudsList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionFour in OvercastList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionFour in LightRainList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionFour in RainList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionFour in SnowList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionFour in ThunderList:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionFourIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionFourIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_four_icon()}).png')
 
 #  ---------------------------------------- Day 5 ----------------------------------------- #
-if forecast_data.ConditionFive in SunnyList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 
-elif forecast_data.ConditionFive in CloudsList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionFive in OvercastList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionFive in LightRainList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionFive in RainList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionFive in SnowList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionFive in ThunderList:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionFiveIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionFiveIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_five_icon()}).png')
 
 #  ---------------------------------------- Day 6 ----------------------------------------- #
-if forecast_data.ConditionSix in SunnyList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
 
-elif forecast_data.ConditionSix in CloudsList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionSix in OvercastList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionSix in LightRainList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionSix in RainList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionSix in SnowList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionSix in ThunderList:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionSixIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
-    print(forecast_data.ConditionsList)
+ConditionSixIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_six_icon()}).png')
 
 #  ---------------------------------------- Day 7 ----------------------------------------- #
-if forecast_data.ConditionSeven in SunnyList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
-
-elif forecast_data.ConditionSeven in CloudsList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (2).png')
-
-elif forecast_data.ConditionSeven in OvercastList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (7).png')
-
-elif forecast_data.ConditionSeven in LightRainList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (8).png')
-
-elif forecast_data.ConditionSeven in RainList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (10).png')
-
-elif forecast_data.ConditionSeven in SnowList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (9).png')
-
-elif forecast_data.ConditionSeven in ThunderList:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (3).png')
-
-else:
-    ConditionSevenIcon = PhotoImage(file=r'Small Icons\output-onlinepngtools (1).png')
+ConditionSevenIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_seven_icon()}).png')
 
 Gota = PhotoImage(file=r'Small Icons\output-onlinepngtools (11).png')
 
 if data.IsDay == 0:
-    Background = SunnyNight
+    Background = Ui.SunnyNight
     if data.Condition == 'Clear':
         Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (9).png')
-    elif data.Condition in CloudsList:
+    elif data.Condition == 'Partly cloudy' or data.Condition == 'Clouds':
         Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (8).png')
     fg = 'white'
     bg = f'{SunnyNight}'
@@ -290,7 +96,6 @@ window.configure(bg=f'{Background}')
 
 UvImageLabel = Label(master=window, bg=Background, image=UvImage)
 Logo = PhotoImage(file=r'new_icons\output-onlinepngtools.png')
-WeatherGridImage = PhotoImage(file='autodraw_4_13_2021__3_-removebg-preview.png')
 
 TodayMax = Label(master=window, bg=Background, text=f'{forecast_data.MaxZeroC}°C', font=(f'{font}', 12, 'normal'),
                  fg=f'{fg}')
@@ -312,7 +117,7 @@ Location = Label(master=window, bg=Background, text=f'{data.City}, {data.Region}
 CurrentTemperature = Label(master=window, bg=Background, text=f'{data.TempC}°C',
                            font=(f'{font}', 40, 'normal'), fg=f'{fg}')
 
-if data.Condition in ThunderList:
+if Ui.there_is_thunder():
     CurrentCondition = Label(master=window, bg=Background, text='Thunder',
                              font=(f'{font}', 18, 'normal'), fg=f'{fg}')
 else:
@@ -465,14 +270,14 @@ ChangeButtonF = Button(text='°F', command=change_temp_f)
 IconImage.place(x=100, y=80)
 Location.place(x=130, y=15)
 CurrentTemperature.place(x=360, y=110)
-CurrentCondition.place(x=130, y=200)
+CurrentCondition.place(x=130, y=220)
 FeelsLike.place(x=360, y=200)
 Humidity.place(x=410, y=245)
 TodayMax.place(x=500, y=120)
 TodayMin.place(x=500, y=145)
 
 Weathery.place(x=120, y=565)
-LogoImage.place(x=485, y=545)
+LogoImage.place(x=485, y=500)
 MadeBy.place(x=190, y=635)
 
 ChangeButtonC.place(x=30, y=20)
