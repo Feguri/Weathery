@@ -1,4 +1,10 @@
-import requests
+try:
+    import requests
+except ModuleNotFoundError:
+    import subprocess
+    subprocess.call('pip install requests')
+    subprocess.call('pip install pygame')
+    print('\n\nNecessary Modules installed. Restart Program')
 
 
 class WeatherData:
@@ -9,8 +15,7 @@ class WeatherData:
         self.CurrentEndpoint = f'http://api.weatherapi.com/v1{self.CurrentWeatherEndpoint}'
 
         self.params = {
-            'key': f'{self.ApiKey}',
-            'q': f'{city}'
+            'key': f'{self.ApiKey}', 'q': f'{city}'
         }
 
         self.request = requests.get(url=self.CurrentEndpoint, params=self.params)
@@ -35,6 +40,3 @@ class WeatherData:
         self.Uv = self.data['current']['uv']
         self.Lat = self.data['location']['lat']
         self.Lon = self.data['location']['lon']
-
-
-data = WeatherData(city='Montreal')

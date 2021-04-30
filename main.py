@@ -4,6 +4,8 @@ from ForecastData import ForecastData
 from AstronomyData import AstronomyData
 import datetime as dt
 from tkinter import simpledialog
+import pygame
+import random
 
 
 date = dt.datetime
@@ -26,11 +28,10 @@ window = Tk()
 window.geometry('1200x700')
 window.title('Weathery 🌲')
 
-City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
-
+# City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
+City = 'moscow'
 with open(file='City.csv', mode='a') as city_file:
     city_file.write(f'{City}')
-
 
 data = WeatherData(city=f'{City}')
 astronomy_data = AstronomyData(city=f'{City}')
@@ -203,6 +204,35 @@ Max7 = Label(master=window, bg=Background, text=f'{forecast_data.MaxSevenC}°C',
 Min7 = Label(master=window, bg=Background, text=f'{forecast_data.MinSevenC}°C',
              font=(f'{font}', 9, 'normal'), fg=f'{fg}')
 
+pygame.mixer.init()
+
+normal_list = [0, 1, 2, 6, 11, 12, 13]
+rain_list = [10, 7]
+thunder = 14
+
+music = ['spongebob-production-music-hawaiian-happiness.mp3', 'reverie.mp3', 'plantasia.mp3', 'all-star.mp3']
+
+
+def play():
+    if Ui.main_icon_number() in normal_list:
+        pygame.mixer.music.load(random.choice(music))
+    elif Ui.main_icon_number() in rain_list:
+        pygame.mixer.music.load('rain.mp3')
+    else:
+        pygame.mixer.music.load('thunder.mp3')
+
+    pygame.mixer.music.play(loops=0)
+
+
+def stop():
+    pygame.mixer.music.stop()
+
+
+MusicButton = Button(master=window, bg=Background,  text='♫',
+                     font=(f'{font}', 20, 'bold'), fg=f'{fg}', command=play)
+StopButton = Button(master=window, bg=Background,  text='X',
+                    font=(f'{font}', 6, 'bold'), fg=f'{fg}', command=stop)
+
 
 def change_temp_f():
     CurrentTemperature.configure(text=f'{data.TempF}°F')
@@ -277,7 +307,7 @@ TodayMax.place(x=500, y=120)
 TodayMin.place(x=500, y=145)
 
 Weathery.place(x=120, y=565)
-LogoImage.place(x=485, y=500)
+LogoImage.place(x=485, y=480)
 MadeBy.place(x=190, y=635)
 
 ChangeButtonC.place(x=30, y=20)
@@ -325,6 +355,8 @@ Min7.place(x=900, y=605)
 SunriseLabel.place(x=360, y=300)
 SunsetLabel.place(x=360, y=330)
 
+MusicButton.place(x=35, y=80)
+StopButton.place(x=16, y=80)
 
 window.mainloop()
 
