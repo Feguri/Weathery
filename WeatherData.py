@@ -3,7 +3,6 @@ try:
 except ModuleNotFoundError:
     import subprocess
     subprocess.call('pip install requests')
-    subprocess.call('pip install pygame')
     print('\n\nNecessary Modules installed. Restart Program')
 
 

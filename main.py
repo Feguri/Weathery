@@ -4,7 +4,13 @@ from ForecastData import ForecastData
 from AstronomyData import AstronomyData
 import datetime as dt
 from tkinter import simpledialog
-import pygame
+try:
+    import pygame
+except ModuleNotFoundError:
+    import subprocess
+    subprocess.call('pip install pygame')
+    print('Successfully installed pygame. Please restart.')
+
 import random
 
 
