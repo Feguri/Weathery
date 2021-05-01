@@ -28,8 +28,8 @@ window = Tk()
 window.geometry('1200x700')
 window.title('Weathery 🌲')
 
-# City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
-City = 'moscow'
+City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
+
 with open(file='City.csv', mode='a') as city_file:
     city_file.write(f'{City}')
 
