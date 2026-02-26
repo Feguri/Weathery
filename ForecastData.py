@@ -1,90 +1,99 @@
+import os
 import requests
+from collections import defaultdict, Counter
+from datetime import datetime
 
 
 class ForecastData:
     def __init__(self, lat, lon):
-        self.ApiKey = '1e9e9de5ee2fe2c660df35054541f17c'
-        self.City = 'Montreal'
-        self.cnt = 7
 
-        self.request = requests.get(url=f'https://api.openweathermap.org/data/2.5/onecall'
-                                        f'?lat={lat}&'
-                                        f'lon={lon}&'
-                                        f'appid={self.ApiKey}')
-        self.request.raise_for_status()
-        self.data = self.request.json()
+        self.ApiKey = os.getenv(
+            'OPENWEATHER_API_KEY',
+            '1e9e9de5ee2fe2c660df35054541f17c'
+        )
 
-        self.index = 0
-        self.MaxTempListK = []
-        self.MinTempListK = []
-        for self.Day in self.data['daily']:
-            self.MaxTempListK.append(self.data['daily'][self.index]['temp']['max'])
-            self.MinTempListK.append(self.data['daily'][self.index]['temp']['min'])
-            self.index += 1
+        endpoint = "https://api.openweathermap.org/data/2.5/forecast"
 
-        self.MaxTempListC = []
-        for self.MaxItemK in self.MaxTempListK:
-            self.ConvertedTemp = int(round(self.MaxItemK - 273.15, 0))
-            self.MaxTempListC.append(self.ConvertedTemp)
+        params = {
+            "lat": lat,
+            "lon": lon,
+            "appid": self.ApiKey,
+            "units": "metric"
+        }
 
-        self.MinTempListC = []
-        for self.MinItemK in self.MinTempListK:
-            self.ConvertedTemp = int(round(self.MinItemK - 273.15, 0))
-            self.MinTempListC.append(self.ConvertedTemp)
+        resp = requests.get(endpoint, params=params)
+        resp.raise_for_status()
 
-# ------------------------------------------ ALL THE TEMPS FOR THE WEEK -------------------------------------- #
-        self.MaxZeroC = self.MaxTempListC[0]
-        self.MaxOneC = self.MaxTempListC[1]
-        self.MaxTwoC = self.MaxTempListC[2]
-        self.MaxThreeC = self.MaxTempListC[3]
-        self.MaxFourC = self.MaxTempListC[4]
-        self.MaxFiveC = self.MaxTempListC[5]
-        self.MaxSixC = self.MaxTempListC[6]
-        self.MaxSevenC = self.MaxTempListC[7]
+        data = resp.json()
 
-        self.MinZeroC = self.MinTempListC[0]
-        self.MinOneC = self.MinTempListC[1]
-        self.MinTwoC = self.MinTempListC[2]
-        self.MinThreeC = self.MinTempListC[3]
-        self.MinFourC = self.MinTempListC[4]
-        self.MinFiveC = self.MinTempListC[5]
-        self.MinSixC = self.MinTempListC[6]
-        self.MinSevenC = self.MinTempListC[7]
+        # Aggregate 3-hour samples into daily groups
+        days = defaultdict(lambda: {"temps": [], "conds": []})
 
-        self.MaxZeroF = int(round((self.MaxTempListC[0] * (9 / 5)) + 32, 0))
-        self.MaxOneF = int(round((self.MaxTempListC[1] * (9/5)) + 32, 0))
-        self.MaxTwoF = int(round((self.MaxTempListC[2] * (9/5)) + 32, 0))
-        self.MaxThreeF = int(round((self.MaxTempListC[3] * (9/5)) + 32, 0))
-        self.MaxFourF = int(round((self.MaxTempListC[4] * (9/5)) + 32, 0))
-        self.MaxFiveF = int(round((self.MaxTempListC[5] * (9/5)) + 32, 0))
-        self.MaxSixF = int(round((self.MaxTempListC[6] * (9/5)) + 32, 0))
-        self.MaxSevenF = int(round((self.MaxTempListC[7] * (9/5)) + 32, 0))
+        for item in data.get("list", []):
+            ts = item.get("dt")
+            if not ts:
+                continue
 
-        self.MinZeroF = int(round((self.MinTempListC[0] * (9 / 5)) + 32, 0))
-        self.MinOneF = int(round((self.MinTempListC[1] * (9/5)) + 32, 0))
-        self.MinTwoF = int(round((self.MinTempListC[2] * (9/5)) + 32, 0))
-        self.MinThreeF = int(round((self.MinTempListC[3] * (9/5)) + 32, 0))
-        self.MinFourF = int(round((self.MinTempListC[4] * (9/5)) + 32, 0))
-        self.MinFiveF = int(round((self.MinTempListC[5] * (9/5)) + 32, 0))
-        self.MinSixF = int(round((self.MinTempListC[6] * (9/5)) + 32, 0))
-        self.MinSevenF = int(round((self.MinTempListC[7] * (9/5)) + 32, 0))
+            day_key = datetime.utcfromtimestamp(ts).date()
 
-        # A list of the weather conditions for the next 7 days
-        self.ConditionsList = []
+            temp = item["main"].get("temp")
+            if temp is not None:
+                days[day_key]["temps"].append(temp)
 
-        self.Index = 0
+            condition = item["weather"][0].get("main")
+            if condition:
+                days[day_key]["conds"].append(condition)
 
-        for self.Condition in self.data['daily']:
-            self.CurrentCondition = self.data['daily'][self.Index]['weather'][0]['main']
-            self.ConditionsList.append(self.CurrentCondition)
+        ordered_dates = sorted(days.keys())
 
-            self.Index += 1
+        max_c = []
+        min_c = []
+        conds = []
 
-# ------------------------------------------ CONDITIONS FOR THE WEEK -------------------------------------- #
-        self.ConditionOne = self.ConditionsList[1]
-        self.ConditionTwo = self.ConditionsList[2]
-        self.ConditionThree = self.ConditionsList[3]
-        self.ConditionFour = self.ConditionsList[4]
-        self.ConditionFive = self.ConditionsList[5]
-        self.ConditionSix = self.ConditionsList[6]
-        self.ConditionSeven = self.ConditionsList[7]
+        for d in ordered_dates:
+            temps = days[d]["temps"]
+
+            if temps:
+                max_c.append(int(round(max(temps))))
+                min_c.append(int(round(min(temps))))
+            else:
+                max_c.append(None)
+                min_c.append(None)
+
+            if days[d]["conds"]:
+                dominant = Counter(days[d]["conds"]).most_common(1)[0][0]
+                conds.append(dominant)
+            else:
+                conds.append(None)
+
+        # Pad to 8 days to preserve legacy UI expectations
+        def pad(lst, size=8):
+            if not lst:
+                return [None] * size
+            while len(lst) < size:
+                lst.append(lst[-1])
+            return lst[:size]
+
+        self.MaxTempListC = pad(max_c)
+        self.MinTempListC = pad(min_c)
+        self.ConditionsList = pad(conds)
+
+        names = ("Zero","One","Two","Three","Four","Five","Six","Seven")
+
+        for i in range(8):
+            setattr(self, f"Max{names[i]}C", self.MaxTempListC[i])
+            setattr(self, f"Min{names[i]}C", self.MinTempListC[i])
+
+        def c_to_f(c):
+            return int(round((c * 9/5) + 32)) if c is not None else None
+
+        for i in range(8):
+            setattr(self, f"Max{names[i]}F", c_to_f(self.MaxTempListC[i]))
+            setattr(self, f"Min{names[i]}F", c_to_f(self.MinTempListC[i]))
+
+        # ConditionOne..ConditionSeven
+        cond_names = ("One","Two","Three","Four","Five","Six","Seven")
+
+        for i in range(1, 8):
+            setattr(self, f"Condition{cond_names[i-1]}",
+                    self.ConditionsList[i])

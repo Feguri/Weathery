@@ -1,15 +1,22 @@
+import os
+import platform
 from tkinter import *
 from WeatherData import WeatherData
 from ForecastData import ForecastData
 from AstronomyData import AstronomyData
 import datetime as dt
 from tkinter import simpledialog
-try:
-    import pygame
-except ModuleNotFoundError:
-    import subprocess
-    subprocess.call('pip install pygame')
-    print('Successfully installed pygame. Please restart.')
+
+# Determine operating system
+IS_WINDOWS = platform.system().lower().startswith('win')
+IS_MACOS = platform.system().lower() == 'darwin'
+# (other platforms can be detected similarly)
+
+# helper for building paths (os.path.join already handles separators correctly)
+def make_path(*parts):
+    return os.path.join(*parts)
+
+print(f"Running on {platform.system()} (Windows? {IS_WINDOWS}, macOS? {IS_MACOS})")
 
 import random
 
@@ -36,7 +43,8 @@ window.title('Weathery 🌲')
 
 City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
 
-with open(file='City.csv', mode='a') as city_file:
+city_file_path = make_path('City.csv')
+with open(file=city_file_path, mode='a') as city_file:
     city_file.write(f'{City}')
 
 data = WeatherData(city=f'{City}')
@@ -45,55 +53,55 @@ forecast_data = ForecastData(lat=data.Lat, lon=data.Lon)
 
 from UiHelp import Ui
 Ui = Ui()
-Icon = PhotoImage(file=rf'new_icons\output-onlinepngtools ({Ui.main_icon_number()}).png')
+Icon = PhotoImage(file=os.path.join('new_icons', f"output-onlinepngtools ({Ui.main_icon_number()}).png"))
 Background = Ui.background
 
 #  ---------------------------------------- Day 1 ----------------------------------------- #
 
-ConditionOneIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_one_icon()}).png')
+ConditionOneIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_one_icon()}).png"))
 
 #  ---------------------------------------- Day 2 ----------------------------------------- #
 
-ConditionTwoIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_two_icon()}).png')
+ConditionTwoIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_two_icon()}).png"))
 
 #  ---------------------------------------- Day 3 ----------------------------------------- #
 
-ConditionThreeIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_three_icon()}).png')
+ConditionThreeIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_three_icon()}).png"))
 
 #  ---------------------------------------- Day 4 ----------------------------------------- #
 
-ConditionFourIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_four_icon()}).png')
+ConditionFourIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_four_icon()}).png"))
 
 #  ---------------------------------------- Day 5 ----------------------------------------- #
 
-ConditionFiveIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_five_icon()}).png')
+ConditionFiveIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_five_icon()}).png"))
 
 #  ---------------------------------------- Day 6 ----------------------------------------- #
 
-ConditionSixIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_six_icon()}).png')
+ConditionSixIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_six_icon()}).png"))
 
 #  ---------------------------------------- Day 7 ----------------------------------------- #
-ConditionSevenIcon = PhotoImage(file=rf'Small Icons\output-onlinepngtools ({Ui.day_seven_icon()}).png')
+ConditionSevenIcon = PhotoImage(file=os.path.join('Small Icons', f"output-onlinepngtools ({Ui.day_seven_icon()}).png"))
 
-Gota = PhotoImage(file=r'Small Icons\output-onlinepngtools (11).png')
+Gota = PhotoImage(file=os.path.join('Small Icons', 'output-onlinepngtools (11).png'))
 
 if data.IsDay == 0:
     Background = Ui.SunnyNight
     if data.Condition == 'Clear':
-        Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (9).png')
+        Icon = PhotoImage(file=os.path.join('new_icons', 'output-onlinepngtools (9).png'))
     elif data.Condition == 'Partly cloudy' or data.Condition == 'Clouds':
-        Icon = PhotoImage(file=r'new_icons\output-onlinepngtools (8).png')
+        Icon = PhotoImage(file=os.path.join('new_icons', 'output-onlinepngtools (8).png'))
     fg = 'white'
     bg = f'{SunnyNight}'
 else:
     fg = 'black'
 # --------------------------------------- Uv Meter Device ------------------------------------------ #\
 
-UvIndex = int(data.Uv + 6)
+UvIndex = int(getattr(data, 'Uv', 0) + 6)
 try:
-    UvImage = PhotoImage(file=rf'Uv\autodraw_4_17_2021__{UvIndex}_-removebg-preview.png')
+    UvImage = PhotoImage(file=os.path.join('Uv', f'autodraw_4_17_2021__{UvIndex}_-removebg-preview.png'))
 except EXCEPTION:
-    UvImage = PhotoImage(file=rf'Uv\autodraw_4_17_2021__18_-removebg-preview.png')
+    UvImage = PhotoImage(file=os.path.join('Uv', 'autodraw_4_17_2021__18_-removebg-preview.png'))
 
 # --------------------------------------- UI ------------------------------------------ #
 
@@ -102,7 +110,7 @@ font = 'Arial'
 window.configure(bg=f'{Background}')
 
 UvImageLabel = Label(master=window, bg=Background, image=UvImage)
-Logo = PhotoImage(file=r'new_icons\output-onlinepngtools.png')
+Logo = PhotoImage(file=os.path.join('new_icons', 'output-onlinepngtools.png'))
 
 TodayMax = Label(master=window, bg=Background, text=f'{forecast_data.MaxZeroC}°C', font=(f'{font}', 12, 'normal'),
                  fg=f'{fg}')
@@ -118,7 +126,7 @@ SunriseLabel = Label(master=window, bg=Background, text=f'Sunrise: {Sunrise}', f
 SunsetLabel = Label(master=window, bg=Background, text=f'Sunset: {Sunset}', font=(f'{font}', 14, 'normal'), fg=f'{fg}')
 
 IconImage = Label(master=window, bg=Background, image=Icon)
-Location = Label(master=window, bg=Background, text=f'{data.City}, {data.Region}, {data.Country}',
+Location = Label(master=window, bg=Background, text=f"{data.City}, {getattr(data,'Region','')}, {data.Country}",
                  font=(f'{font}', 20, 'italic'), fg=f'{fg}')
 
 CurrentTemperature = Label(master=window, bg=Background, text=f'{data.TempC}°C',
@@ -210,7 +218,7 @@ Max7 = Label(master=window, bg=Background, text=f'{forecast_data.MaxSevenC}°C',
 Min7 = Label(master=window, bg=Background, text=f'{forecast_data.MinSevenC}°C',
              font=(f'{font}', 9, 'normal'), fg=f'{fg}')
 
-pygame.mixer.init()
+current_playback = None
 
 normal_list = [0, 1, 2, 6, 11, 12, 13]
 rain_list = [10, 7]
@@ -220,18 +228,14 @@ music = ['spongebob-production-music-hawaiian-happiness.mp3', 'reverie.mp3', 'pl
 
 
 def play():
-    if Ui.main_icon_number() in normal_list:
-        pygame.mixer.music.load(random.choice(music))
-    elif Ui.main_icon_number() in rain_list:
-        pygame.mixer.music.load('rain.mp3')
-    else:
-        pygame.mixer.music.load('thunder.mp3')
-
-    pygame.mixer.music.play(loops=0)
+    global current_playback
+    print(f'Audio feature not available on this system')
 
 
 def stop():
-    pygame.mixer.music.stop()
+    global current_playback
+    if current_playback:
+        current_playback.stop()
 
 
 MusicButton = Button(master=window, bg=Background,  text='♫',

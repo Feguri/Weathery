@@ -1,41 +1,60 @@
-try:
-    import requests
-except ModuleNotFoundError:
-    import subprocess
-    subprocess.call('pip install requests')
-    print('\n\nNecessary Modules installed. Restart Program')
+import requests
 
 
 class WeatherData:
 
     def __init__(self, city):
-        self.ApiKey = 'f5314c6a881e48e8b70153604211104'
-        self.CurrentWeatherEndpoint = '/current.json'
-        self.CurrentEndpoint = f'http://api.weatherapi.com/v1{self.CurrentWeatherEndpoint}'
+        self.ApiKey = '1e9e9de5ee2fe2c660df35054541f17c'
+
+        self.CurrentEndpoint = "https://api.openweathermap.org/data/2.5/weather"
 
         self.params = {
-            'key': f'{self.ApiKey}', 'q': f'{city}'
+            'q': city,
+            'appid': self.ApiKey,
+            'units': 'metric'
         }
 
-        self.request = requests.get(url=self.CurrentEndpoint, params=self.params)
+        self.request = requests.get(self.CurrentEndpoint, params=self.params)
         self.request.raise_for_status()
         self.data = self.request.json()
 
-        self.City = self.data['location']['name']
-        self.Region = self.data['location']['region']
-        self.Country = self.data['location']['country']
+        # Location
+        self.City = self.data.get('name', '')
+        # openweathermap doesn't expose a region field; attempt state if available
+        self.Region = self.data.get('sys', {}).get('state', '')
+        self.Country = self.data.get('sys', {}).get('country', '')
 
-        self.TempC = int(round(self.data['current']['temp_c'], 0))
-        self.TempF = int(round(self.data['current']['temp_f'], 0))
-        self.IsDay = self.data['current']['is_day']
-        if self.IsDay == 0:
-            self.Current = 'Night'
-        elif self.IsDay == 1:
-            self.Current = 'Day'
-        self.Condition = self.data['current']['condition']['text']
-        self.Humidity = self.data['current']['humidity']
-        self.FeelsLikeC = int(round(self.data['current']['feelslike_c'], 0))
-        self.FeelsLikeF = int(round(self.data['current']['feelslike_f'], 0))
-        self.Uv = self.data['current']['uv']
-        self.Lat = self.data['location']['lat']
-        self.Lon = self.data['location']['lon']
+        # Temperature
+        self.TempC = int(round(self.data['main']['temp']))
+        self.FeelsLikeC = int(round(self.data['main']['feels_like']))
+
+        # Convert to Fahrenheit manually
+        self.TempF = int(round((self.TempC * 9/5) + 32))
+        self.FeelsLikeF = int(round((self.FeelsLikeC * 9/5) + 32))
+
+        # Weather
+        # use 'main' field for broad conditions like Clear, Clouds, Rain, etc.
+        self.Condition = self.data['weather'][0]['main']
+        self.Humidity = self.data['main']['humidity']
+
+        # Day / Night
+        icon = self.data['weather'][0]['icon']
+        self.Current = "Night" if icon.endswith('n') else "Day"
+        # also provide integer flag for legacy code
+        self.IsDay = 0 if icon.endswith('n') else 1
+
+        # Coordinates
+        self.Lat = self.data['coord']['lat']
+        self.Lon = self.data['coord']['lon']
+
+        # UV index - OpenWeather has a separate endpoint. may be restricted
+        try:
+            uv_resp = requests.get(
+                'https://api.openweathermap.org/data/2.5/uvi',
+                params={'lat': self.Lat, 'lon': self.Lon, 'appid': self.ApiKey}
+            )
+            uv_resp.raise_for_status()
+            self.Uv = uv_resp.json().get('value', 0)
+        except Exception:
+            # if anything fails (401, network etc.), default to 0
+            self.Uv = 0
