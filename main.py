@@ -1,11 +1,12 @@
 import os
 import platform
+import subprocess
 from tkinter import *
 from WeatherData import WeatherData
 from ForecastData import ForecastData
 from AstronomyData import AstronomyData
 import datetime as dt
-from tkinter import simpledialog
+from tkinter import simpledialog, messagebox
 
 # Determine operating system
 IS_WINDOWS = platform.system().lower().startswith('win')
@@ -17,6 +18,9 @@ def make_path(*parts):
     return os.path.join(*parts)
 
 print(f"Running on {platform.system()} (Windows? {IS_WINDOWS}, macOS? {IS_MACOS})")
+
+# audio process handle
+current_audio_proc = None
 
 import random
 
@@ -41,13 +45,29 @@ window = Tk()
 window.geometry('1200x700')
 window.title('Weathery 🌲')
 
-City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
+# Prompt for city with retry on 404
+City = None
+while not City:
+    City = simpledialog.askstring(title='Search a City', prompt='Enter Your City Name')
+    if not City:
+        messagebox.showwarning('Input Required', 'Please enter a city name.')
+        City = None
+        continue
+    
+    try:
+        data = WeatherData(city=City)
+        break  # success
+    except requests.exceptions.HTTPError as e:
+        if '404' in str(e):
+            messagebox.showerror('City Not Found', f"Could not find city '{City}'.\nPlease try another.")
+            City = None
+        else:
+            raise
 
 city_file_path = make_path('City.csv')
 with open(file=city_file_path, mode='a') as city_file:
     city_file.write(f'{City}')
 
-data = WeatherData(city=f'{City}')
 astronomy_data = AstronomyData(city=f'{City}')
 forecast_data = ForecastData(lat=data.Lat, lon=data.Lon)
 
@@ -98,10 +118,18 @@ else:
 # --------------------------------------- Uv Meter Device ------------------------------------------ #\
 
 UvIndex = int(getattr(data, 'Uv', 0) + 6)
+# clamp UvIndex to 0-18 range (max available image)
+UvIndex = max(0, min(18, UvIndex))
+uv_file = os.path.join('Uv', f'autodraw_4_17_2021__{UvIndex}_-removebg-preview.png')
+if not os.path.exists(uv_file):
+    # if exact UV index file doesn't exist, use fallback image
+    uv_file = os.path.join('Uv', 'autodraw_4_17_2021__18_-removebg-preview.png')
 try:
-    UvImage = PhotoImage(file=os.path.join('Uv', f'autodraw_4_17_2021__{UvIndex}_-removebg-preview.png'))
-except EXCEPTION:
-    UvImage = PhotoImage(file=os.path.join('Uv', 'autodraw_4_17_2021__18_-removebg-preview.png'))
+    UvImage = PhotoImage(file=uv_file)
+except Exception as e:
+    print(f"Warning: could not load UV image from {uv_file}: {e}")
+    # create a blank/placeholder image if all else fails
+    UvImage = PhotoImage(width=100, height=100)
 
 # --------------------------------------- UI ------------------------------------------ #
 
@@ -228,14 +256,36 @@ music = ['spongebob-production-music-hawaiian-happiness.mp3', 'reverie.mp3', 'pl
 
 
 def play():
-    global current_playback
-    print(f'Audio feature not available on this system')
+    """Play a chosen audio file using a simple OS command."""
+    global current_audio_proc
+    # choose file based on weather
+    if Ui.main_icon_number() in normal_list:
+        audio_file = random.choice(music)
+    elif Ui.main_icon_number() in rain_list:
+        audio_file = 'rain.mp3'
+    else:
+        audio_file = 'thunder.mp3'
+    try:
+        if IS_MACOS:
+            current_audio_proc = subprocess.Popen(['afplay', audio_file])
+        elif IS_WINDOWS:
+            # use PowerShell SoundPlayer for WAV; mp3 may require external player
+            current_audio_proc = subprocess.Popen(['powershell', '-c', f"(New-Object Media.SoundPlayer '{audio_file}').PlaySync()"])
+        else:
+            # generic fallback: try to open with default application
+            current_audio_proc = subprocess.Popen(['xdg-open', audio_file])
+    except Exception as e:
+        print(f"Error playing audio: {e}")
 
 
 def stop():
-    global current_playback
-    if current_playback:
-        current_playback.stop()
+    global current_audio_proc
+    if current_audio_proc:
+        try:
+            current_audio_proc.terminate()
+        except Exception:
+            pass
+        current_audio_proc = None
 
 
 MusicButton = Button(master=window, bg=Background,  text='♫',
